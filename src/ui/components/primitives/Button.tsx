@@ -11,6 +11,8 @@ export interface ButtonProps {
     color?: string;
     pv?: Size;
     ph?: Size;
+    mv?: Size;
+    mh?: Size;
     radius?: Size;
 }
 
@@ -19,6 +21,7 @@ export const Button = styled.button<ButtonProps & { theme: Theme }>`
     width: ${p => p.w ? parseSize(p.w, p.theme) : 'auto'};
     height: ${p => p.h ? parseSize(p.h, p.theme) : 'auto'};
     padding: ${p => p.pv ? parseSize(p.pv, p.theme) : p.theme.dimensions.sm} ${p => p.ph ? parseSize(p.ph, p.theme) : p.theme.dimensions.md};
+    margin: ${p => p.mv ? parseSize(p.mv, p.theme) : 'unset'} ${p => p.mh ? parseSize(p.mh, p.theme) : 'unset'};
     ${p => p.variant === 'primary' && css`
         background-color: ${p.theme.colors.primary};
         color: ${parseColor(p.color, p.theme) || p.theme.colors.onPrimary};

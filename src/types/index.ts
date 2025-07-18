@@ -27,6 +27,7 @@ export interface Permission {
 export interface Channel {
   id: number;
   name: string;
+  avatar: string;
   instruction: string;
   authorId: number;
   author?: User;
@@ -38,6 +39,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
+  avatar: string;
   gender: Gender;
   isActive: boolean;
   isVerified: boolean;

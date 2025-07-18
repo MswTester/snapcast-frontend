@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { ApplySpacingProps, ApplySizeProps, ApplyLayoutProps, ApplyPositionProps, ApplyStyleProps, ApplyTransformProps, ApplyAnimationProps } from "../../../css";
-import type { SpacingProps, SizeProps, LayoutProps, PositionProps, StyleProps, TransformProps, AnimationProps } from "../../../types";
+import type { EventProps, SpacingProps, SizeProps, LayoutProps, PositionProps, StyleProps, TransformProps, AnimationProps } from "../../../types";
 import type { ThemeIncludes } from "../../../themes/types";
 
-interface HStackProps extends SpacingProps, SizeProps, LayoutProps, PositionProps, StyleProps, TransformProps, AnimationProps, ThemeIncludes {
+interface HStackProps extends EventProps, SpacingProps, SizeProps, LayoutProps, PositionProps, StyleProps, TransformProps, AnimationProps, ThemeIncludes {
   children?: React.ReactNode;
   justify?: string;
   items?: string;
@@ -26,5 +26,14 @@ const StyledHStack = styled.div<HStackProps>`
 `;
 
 export const HStack: React.FC<HStackProps> = ({ children, ...props }) => {
-  return <StyledHStack {...props}>{children}</StyledHStack>;
+  return <StyledHStack {...props}
+    onClick={props.onClick}
+    onTouchStart={props.onTouchStart}
+    onTouchMove={props.onTouchMove}
+    onTouchEnd={props.onTouchEnd}
+    onMouseEnter={props.onMouseEnter}
+    onMouseLeave={props.onMouseLeave}
+  >
+    {children}
+  </StyledHStack>;
 };

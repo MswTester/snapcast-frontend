@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { Snap } from "../types";
+import { ApiService } from "../services/api";
 
 const BASE_URL = "http://localhost:8000";
 
@@ -26,6 +27,8 @@ export interface AudioContextType {
     playSnapById: (_snapId: number) => void;
     loadSnapById: (_snapId: number) => Promise<void>;
     currentIndex: number;
+    autoPlayEnabled: boolean;
+    setAutoPlayEnabled: (_enabled: boolean) => void;
 }
 
 export const AudioContext = createContext<AudioContextType | null>(null);
@@ -42,6 +45,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     const [currentSnapId, setCurrentSnapId] = useState<number | null>(null);
     const [currentSnap, setCurrentSnap] = useState<Snap | null>(null);
     const [currentIndex, setCurrentIndex] = useState(-1);
+    const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
 
     useEffect(() => {
         const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -77,27 +81,44 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const fetchSnap = async (snapId: number): Promise<Snap> => {
-        const response = await fetch(`${BASE_URL}/snap/${snapId}/info`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch snap ${snapId}`);
-        }
-        const result = await response.json();
-        return result.data;
+        const response = await ApiService.getSnapInfo(snapId);
+        return response.data;
     };
 
     const addToQueue = useCallback((_snapId: number) => {
         setQueue(prev => [...prev, _snapId]);
     }, []);
 
-    const playNext = useCallback(() => {
+    const getRandomPopularSnap = useCallback(async (): Promise<number | null> => {
+        try {
+            const response = await ApiService.getPopularSnaps();
+            const popularSnaps = response.data;
+            if (popularSnaps.length > 0) {
+                const randomSnap = popularSnaps[Math.floor(Math.random() * popularSnaps.length)];
+                return randomSnap.id;
+            }
+        } catch (error) {
+            console.error("Failed to get random popular snap:", error);
+        }
+        return null;
+    }, []);
+
+    const playNext = useCallback(async () => {
         if (currentIndex < queue.length - 1) {
             const nextIndex = currentIndex + 1;
             const nextSnapId = queue[nextIndex];
             setCurrentIndex(nextIndex);
-            setCurrentSnapId(nextSnapId);
-            
+            await loadSnapById(nextSnapId);
+        } else if (autoPlayEnabled) {
+            // Queue ended, get a random popular snap
+            const randomSnapId = await getRandomPopularSnap();
+            if (randomSnapId) {
+                addToQueue(randomSnapId);
+                setCurrentIndex(queue.length);
+                await loadSnapById(randomSnapId);
+            }
         }
-    }, [currentIndex, queue]);
+    }, [currentIndex, queue, autoPlayEnabled, getRandomPopularSnap, addToQueue]);
 
     const loadAudio = useCallback(async (_url: string) => {
         if (!audioContext || !gainNode) return;
@@ -117,9 +138,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             
             newSource.onended = () => {
                 setIsPlaying(false);
-                if (currentIndex < queue.length - 1) {
-                    playNext();
-                }
+                playNext();
             };
             
             newSource.start();
@@ -138,25 +157,6 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [currentSnapId, playNext]);
 
-    const clearQueue = useCallback(() => {
-        setQueue([]);
-        setCurrentSnapId(null);
-        setCurrentSnap(null);
-        setCurrentIndex(-1);
-        source?.stop();
-        setSource(null);
-        setIsPlaying(false);
-    }, [source]);
-
-    const playPrevious = useCallback(() => {
-        if (currentIndex > 0) {
-            const prevIndex = currentIndex - 1;
-            const prevSnapId = queue[prevIndex];
-            setCurrentIndex(prevIndex);
-            setCurrentSnapId(prevSnapId);
-        }
-    }, [currentIndex, queue]);
-
     const loadSnapById = useCallback(async (_snapId: number) => {
         try {
             const snap = await fetchSnap(_snapId);
@@ -169,6 +169,25 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error loading snap:', error);
         }
     }, [loadAudio]);
+
+    const clearQueue = useCallback(() => {
+        setQueue([]);
+        setCurrentSnapId(null);
+        setCurrentSnap(null);
+        setCurrentIndex(-1);
+        source?.stop();
+        setSource(null);
+        setIsPlaying(false);
+    }, [source]);
+
+    const playPrevious = useCallback(async () => {
+        if (currentIndex > 0) {
+            const prevIndex = currentIndex - 1;
+            const prevSnapId = queue[prevIndex];
+            setCurrentIndex(prevIndex);
+            await loadSnapById(prevSnapId);
+        }
+    }, [currentIndex, queue, loadSnapById]);
 
     const playSnapById = useCallback(async (_snapId: number) => {
         const index = queue.indexOf(_snapId);
@@ -204,7 +223,9 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             clearQueue,
             playSnapById,
             loadSnapById,
-            currentIndex
+            currentIndex,
+            autoPlayEnabled,
+            setAutoPlayEnabled
         }}>
             {children}
         </AudioContext.Provider>

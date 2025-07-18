@@ -1,5 +1,14 @@
 export type Size = string | number;
 
+export interface EventProps {
+    onClick?: (e?: any) => void;
+    onTouchStart?: (e?: any) => void;
+    onTouchMove?: (e?: any) => void;
+    onTouchEnd?: (e?: any) => void;
+    onMouseEnter?: (e?: any) => void;
+    onMouseLeave?: (e?: any) => void;
+}
+
 export interface SpacingProps {
   p?: Size;
   pt?: Size;
