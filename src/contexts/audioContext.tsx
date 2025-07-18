@@ -27,6 +27,8 @@ export interface AudioContextType {
     currentIndex: number;
     autoPlayEnabled: boolean;
     setAutoPlayEnabled: (_enabled: boolean) => void;
+    playSnap: (_snapId: number) => Promise<void>;
+    addAllToQueue: (_snapIds: number[]) => void;
 }
 
 export const AudioContext = createContext<AudioContextType | null>(null);
@@ -198,6 +200,17 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             await loadSnapById(_snapId);
         }
     }, [queue, addToQueue, loadSnapById]);
+    
+    const playSnap = useCallback(async (_snapId: number) => {
+        // Clear current queue and play this snap immediately
+        setQueue([_snapId]);
+        setCurrentIndex(0);
+        await loadSnapById(_snapId);
+    }, [loadSnapById]);
+    
+    const addAllToQueue = useCallback((_snapIds: number[]) => {
+        setQueue(prev => [...prev, ..._snapIds]);
+    }, []);
 
     return (
         <AudioContext.Provider value={{
@@ -223,7 +236,9 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
             loadSnapById,
             currentIndex,
             autoPlayEnabled,
-            setAutoPlayEnabled
+            setAutoPlayEnabled,
+            playSnap,
+            addAllToQueue
         }}>
             {children}
         </AudioContext.Provider>

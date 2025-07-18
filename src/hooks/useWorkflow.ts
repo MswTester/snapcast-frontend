@@ -210,6 +210,14 @@ export const useWorkflow = () => {
     });
   }, []);
 
+  const toggleSearchModal = useCallback(() => {
+    if (state.currentStep === "search") {
+      goBack();
+    } else {
+      navigateTo("search");
+    }
+  }, [state.currentStep, goBack, navigateTo]);
+
   return {
     ...state,
     navigateTo,
@@ -232,5 +240,6 @@ export const useWorkflow = () => {
     handleSnapCreationStep,
     clearSearch,
     resetWorkflow,
+    toggleSearchModal,
   };
 };

@@ -2,7 +2,11 @@ import type {
   ApiResponse, 
   Snap, 
   Channel, 
-  Tag
+  Tag,
+  User,
+  LoginRequest,
+  RegisterRequest,
+  UpdateProfileRequest
 } from "../types";
 
 const BASE_URL = "http://localhost:8000";
@@ -34,13 +38,102 @@ export class ApiService {
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     return response.json();
+  }
+
+  // Authentication endpoints
+  static async login(credentials: LoginRequest): Promise<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>> {
+    const response = await this.request<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+    
+    // Store tokens in localStorage
+    if (response.data?.accessToken && response.data?.refreshToken) {
+      localStorage.setItem("tokens", JSON.stringify({
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken
+      }));
+    }
+    
+    return response;
+  }
+
+  static async register(userData: RegisterRequest): Promise<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>> {
+    const response = await this.request<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+    
+    // Store tokens in localStorage
+    if (response.data?.accessToken && response.data?.refreshToken) {
+      localStorage.setItem("tokens", JSON.stringify({
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken
+      }));
+    }
+    
+    return response;
+  }
+
+  static async getCurrentUser(): Promise<ApiResponse<User>> {
+    return this.request("/auth/me");
+  }
+
+  static async refreshToken(): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
+    const response = await this.request<ApiResponse<{ accessToken: string; refreshToken: string }>>("/auth/refresh");
+    
+    if (response.data?.accessToken && response.data?.refreshToken) {
+      localStorage.setItem("tokens", JSON.stringify({
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken
+      }));
+    }
+    
+    return response;
+  }
+
+  static async logout(): Promise<ApiResponse<void>> {
+    const response = await this.request<ApiResponse<void>>("/auth/logout");
+    localStorage.removeItem("tokens");
+    return response;
+  }
+
+  static async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<User>> {
+    return this.request("/auth/profile", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async getAuthStatus(): Promise<ApiResponse<{ isAuthenticated: boolean; user?: User }>> {
+    return this.request("/auth/status");
+  }
+
+  // Subscription endpoints
+  static async getPlans(): Promise<ApiResponse<Array<{ id: number; name: string; price: number }>>> {
+    return this.request("/auth/plans");
+  }
+
+  static async subscribe(planId: number): Promise<ApiResponse<{ message: string; user: User }>> {
+    return this.request("/auth/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ planId }),
+    });
+  }
+
+  static async unsubscribe(): Promise<ApiResponse<{ message: string; user: User }>> {
+    return this.request("/auth/unsubscribe", {
+      method: "POST",
+    });
   }
 
   // Generic CRUD operations
@@ -172,11 +265,19 @@ export class ApiService {
     const formData = new FormData();
     formData.append("audio", file);
 
-    return fetch(`${BASE_URL}/upload/audio/${snapId}`, {
+    const response = await fetch(`${BASE_URL}/upload/audio/${snapId}`, {
       method: "POST",
       headers: this.getAuthHeaders(),
       body: formData,
-    }).then(res => res.json());
+      credentials: 'include',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData?.error?.message || `Upload failed: ${response.statusText}`);
+    }
+    
+    return response.json();
   }
 
   static async uploadExternalAudio(snapId: number, url: string): Promise<ApiResponse<{ url: string }>> {
@@ -233,5 +334,34 @@ export class ApiService {
 
   static async createTag(data: Partial<Tag>): Promise<ApiResponse<Tag>> {
     return this.createModel<Tag>("tag", data);
+  }
+
+  // Health check
+  static async healthCheck(): Promise<ApiResponse<{ status: string; timestamp: string }>> {
+    return this.request("/health");
+  }
+
+  // AI endpoints
+  static async getAiModels(): Promise<ApiResponse<string[]>> {
+    return this.request("/ai/models");
+  }
+
+  static async askAi(model: string, prompt: string): Promise<ApiResponse<{ response: string }>> {
+    return this.request(`/ai/${model}/`, {
+      method: "POST",
+      body: JSON.stringify({ prompt }),
+    });
+  }
+
+  static async askAiStream(model: string, prompt: string): Promise<Response> {
+    return fetch(`${BASE_URL}/ai/${model}/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify({ prompt }),
+      credentials: 'include',
+    });
   }
 }

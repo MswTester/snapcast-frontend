@@ -146,3 +146,9 @@ export interface AuthResponse {
   user: User;
   tokens?: AuthTokens;
 }
+
+export interface UpdateProfileRequest {
+  name?: string;
+  avatar?: string;
+  gender?: Gender;
+}

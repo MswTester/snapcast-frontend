@@ -32,13 +32,14 @@ export interface SnapItemProps {
     title: string;
     author: string;
     tags: ChipProps[];
+    onClick?: () => void;
 }
 
-const SnapItem = ({ title, author, tags }: SnapItemProps) => {
+const SnapItem = ({ title, author, tags, onClick }: SnapItemProps) => {
     const theme = useTheme() as Theme;
 
     return (
-        <VStack theme={theme} w="100%" bgColor="surface" p="lg" gap="sm" r="md">
+        <VStack theme={theme} w="100%" bgColor="surface" p="lg" gap="sm" r="md" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
             <HStack theme={theme} gap="xs">
                 {tags.map((tag, index) => (
                     <Chip theme={theme} focused={tag.focused} key={index}>{tag.content}</Chip>

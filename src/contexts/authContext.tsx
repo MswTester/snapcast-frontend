@@ -17,6 +17,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
   login: (_credentials: LoginRequest) => Promise<void>;
   register: (_userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = !!user && !!tokens;
 
@@ -82,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = useCallback(async (_credentials: LoginRequest) => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await apiCall<ApiResponse<AuthResponse>>("/auth/login", {
         method: "POST",
@@ -93,6 +96,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("tokens", JSON.stringify(response.data.tokens));
       }
       setUser(response.data.user);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '로그인에 실패했습니다');
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -211,6 +217,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       isAuthenticated,
       isLoading,
+      error,
       login,
       register,
       logout,

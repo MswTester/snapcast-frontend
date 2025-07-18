@@ -1,82 +1,71 @@
 import { useTheme } from "@emotion/react";
-import TrackBar from "../components/advanced/TrackBar";
+import AudioBottomSheet from "../components/advanced/AudioBottomSheet";
 import { VStack } from "../components/primitives/layout/VStack";
 import type { Theme } from "../themes/types";
-import { HStack } from "../components/primitives/layout/HStack";
-import Icon from "../components/primitives/Icon";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SnapItem from "../components/advanced/SnapItem";
-import ChannelRailItem, { type ChannelRailItemProps } from "../components/advanced/ChannelRailItem";
 import { type SnapItemProps } from "../components/advanced/SnapItem";
 import Text from "../components/primitives/Text";
-import { useAuth } from "../../hooks/useAuth";
-import styled from "@emotion/styled";
-import { applyTypography } from "../components/util";
 import SearchBar from "../components/advanced/SearchBar";
+import { useSearch } from "../../hooks/useSearch";
+import { useWorkflow } from "../../hooks/useWorkflow";
+import { useAudio } from "../../hooks/useAudio";
+import type { Snap } from "../../types";
 
 const Search = () => {
     const theme = useTheme() as Theme;
-    const [query, setQuery] = useState('');
-    const [snap, setSnap] = useState<SnapItemProps[]>([
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-        {
-            title: '사랑을 위해 17대 1을 한다.',
-            author: '현호세상 | 김현호',
-            tags: [
-                { focused: true, content: "연애" },
-                { focused: false, content: "현피" },
-            ]
-        },
-    ]);
+    const { searchQuery, goBack, handleSnapClick } = useWorkflow();
+    const { search, results, isLoading, error } = useSearch();
+    const { playSnap } = useAudio();
+    const [query, setQuery] = useState(searchQuery || '');
+    
+    useEffect(() => {
+        if (query) {
+            search(query);
+        }
+    }, []);
+    
+    const handleSearch = () => {
+        if (query.trim()) {
+            search(query);
+        }
+    };
+    
+    const handleSnapItemClick = (snap: Snap) => {
+        handleSnapClick(snap);
+        playSnap(snap.id);
+    };
+    
+    const convertToSnapItemProps = (snap: Snap): SnapItemProps => ({
+        title: snap.title,
+        author: `${snap.channel?.name} | ${snap.channel?.author?.name}`,
+        tags: snap.tags?.map(tag => ({ focused: false, content: tag.name })) || [],
+        onClick: () => handleSnapItemClick(snap)
+    });
 
     return (
         <VStack theme={theme} w="100%" h="100%" bgColor="background">
-            <SearchBar placeholder="검색어를 입력해주세요" query={query} onQueryChange={(query) => setQuery(query)} onSubmit={() => { }} onBack={() => { }} />
+            <SearchBar 
+                placeholder="검색어를 입력해주세요" 
+                query={query} 
+                onQueryChange={setQuery} 
+                onSubmit={handleSearch} 
+                onBack={goBack} 
+            />
             <VStack theme={theme} w="100%" bgColor="background" p='xl' gap='lg' flex={1} scrollable>
-                {snap.map((snap, index) => (
-                    <SnapItem key={index} {...snap} />
-                ))}
+                {isLoading ? (
+                    <Text theme={theme} color="onSurfaceVariant">검색 중...</Text>
+                ) : error ? (
+                    <Text theme={theme} color="error">{error}</Text>
+                ) : results.length === 0 ? (
+                    <Text theme={theme} color="onSurfaceVariant">검색 결과가 없습니다.</Text>
+                ) : (
+                    results.map(snap => (
+                        <SnapItem key={snap.id} {...convertToSnapItemProps(snap)} />
+                    ))
+                )}
             </VStack>
-            <TrackBar title="선린톤 1등 후보인 건에 대해" author="문선우" onClick={() => { }} onPlay={() => { }} progress={50} />
+            <AudioBottomSheet />
         </VStack>
     );
 }
