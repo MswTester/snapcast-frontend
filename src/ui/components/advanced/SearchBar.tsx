@@ -26,12 +26,26 @@ interface SearchBarProps {
 
 const SearchBar = ({ query, placeholder, onQueryChange, onSubmit, onBack }: SearchBarProps) => {
     const theme = useTheme() as Theme;
+    
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            onSubmit();
+        }
+    };
+    
     return (
         <HStack theme={theme} w='100%' p='xl' gap='md'>
             <WrapButton onClick={onBack}>
                 <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_back_light" darkSrc="ic_back_dark" size="24px" />
             </WrapButton>
-            <Input placeholder={placeholder} w='100%' theme={theme} value={query} onChange={(e) => onQueryChange(e.target.value)} />
+            <Input 
+                placeholder={placeholder} 
+                w='100%' 
+                theme={theme} 
+                value={query} 
+                onChange={(e) => onQueryChange(e.target.value)}
+                onKeyPress={handleKeyPress}
+            />
         </HStack>
     );
 }

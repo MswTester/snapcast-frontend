@@ -1,4 +1,3 @@
-import { VStack } from "../primitives/layout/VStack";
 import { HStack } from "../primitives/layout/HStack";
 import Avatar from "../primitives/Avatar";
 import Text from "../primitives/Text";

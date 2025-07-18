@@ -7,6 +7,7 @@ import Text from "../primitives/Text";
 import {Button} from "../primitives/Button";
 import ControllBar from "./ControllBar";
 import Icon from "../primitives/Icon";
+import ContextItem from "./ContextItem";
 import { useAudio, useWorkflow } from "../../../hooks";
 import { ApiService } from "../../../services/api";
 import type { Context, Snap } from "../../../types";
@@ -172,28 +173,18 @@ const AudioBottomSheet = () => {
                                 const isActive = currentTime >= context.timeline && 
                                     (index === contexts.length - 1 || currentTime < contexts[index + 1]?.timeline);
                                 
+                                const roleIcon = context.roles && context.roles.length > 0 
+                                    ? (context.roles[0].type === 'HOST' ? 'ic_host' : 'ic_character')
+                                    : 'ic_character';
+                                
                                 return (
-                                    <HStack 
-                                        key={context.id} 
-                                        theme={theme} 
-                                        gap="sm" 
-                                        p="sm" 
-                                        r="md"
-                                        bgColor={isActive ? "primaryContainer" : "surface"}
-                                    >
-                                        {context.roles?.map((role) => (
-                                            <Icon 
-                                                key={role.id}
-                                                isDarkTheme={theme.type === 'dark'} 
-                                                lightSrc={role.type === 'HOST' ? 'ic_host' : 'ic_character'} 
-                                                darkSrc={role.type === 'HOST' ? 'ic_host' : 'ic_character'} 
-                                                size="20px" 
-                                            />
-                                        ))}
-                                        <Text theme={theme} color="onSurface">
-                                            {context.message}
-                                        </Text>
-                                    </HStack>
+                                    <ContextItem
+                                        key={context.id}
+                                        icon={roleIcon}
+                                        label={context.message}
+                                        listening={isActive}
+                                        onClick={() => {}}
+                                    />
                                 );
                             })}
                         </VStack>

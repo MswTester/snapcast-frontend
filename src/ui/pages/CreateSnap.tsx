@@ -5,8 +5,6 @@ import { Button } from "../components/primitives/Button";
 import Text from "../components/primitives/Text";
 import Icon from "../components/primitives/Icon";
 import { Input } from "../components/primitives/Input";
-import { HStack } from "../components/primitives/layout/HStack";
-import { useNavigate } from "react-router-dom";
 
 const CreateSnap = () => {
     const theme = useTheme() as Theme;

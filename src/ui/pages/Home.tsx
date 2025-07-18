@@ -11,7 +11,6 @@ import ChannelRailItem, { type ChannelRailItemProps } from "../components/advanc
 import { type SnapItemProps } from "../components/advanced/SnapItem";
 import Text from "../components/primitives/Text";
 import { useAuth } from "../../hooks/useAuth";
-import { useRecommendations } from "../../hooks/useRecommendations";
 import { useWorkflow } from "../../hooks/useWorkflow";
 import { useAudio } from "../../hooks/useAudio";
 import { ApiService } from "../../services/api";
@@ -33,7 +32,6 @@ const Home = () => {
     const { user } = useAuth();
     const { toggleSearchModal, handleProfileClick, closeProfileOverlay, isProfileOverlayOpen, handleChannelClick, handleSnapClick } = useWorkflow();
     const { playSnap } = useAudio();
-    const _recommendations = useRecommendations();
     
     const [recommendChannels, setRecommendChannels] = useState<Channel[]>([]);
     const [hotSnaps, setHotSnaps] = useState<Snap[]>([]);
