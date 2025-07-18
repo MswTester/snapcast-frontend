@@ -1,6 +1,9 @@
 export type ThemeIncludes = { theme: Theme };
 
+export type ThemeType = 'light' | 'dark';
+
 export interface Theme {
+    type: ThemeType;
     colors: Colors;
     typography: Typography;
     dimensions: Dimensions;
