@@ -9,22 +9,34 @@ import Channel from './ui/pages/Channel';
 import CreateChannel from './ui/pages/CreateChannel';
 import CreateSnap from './ui/pages/CreateSnap';
 import NotFound from './ui/pages/NotFound';
+import { AuthProvider } from './contexts/authContext';
+import { AudioProvider } from './contexts/audioContext';
+import { useEffect, useState } from 'react';
 
 export default function App() {
-  return (
+  const [once, setOnce] = useState(false);
+  useEffect(() => {
+    setOnce(true);
+  }, []);
+  
+  return (once &&
     <ThemeProvider theme={lightTheme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/channel" element={<Channel />} />
-          <Route path="/create-channel" element={<CreateChannel />} />
-          <Route path="/create-snap" element={<CreateSnap />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+      <AudioProvider>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/channel" element={<Channel />} />
+            <Route path="/create-channel" element={<CreateChannel />} />
+            <Route path="/create-snap" element={<CreateSnap />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </AudioProvider>
     </ThemeProvider>
   );
 }
