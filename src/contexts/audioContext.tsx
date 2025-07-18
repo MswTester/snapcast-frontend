@@ -1,0 +1,212 @@
+import { createContext, useState, useEffect, useCallback } from "react";
+import type { ReactNode } from "react";
+import type { Snap } from "../types";
+
+const BASE_URL = "http://localhost:8000";
+
+export interface AudioContextType {
+    audioContext: AudioContext | null;
+    isPlaying: boolean;
+    togglePlayPause: () => void;
+    setVolume: (_volume: number) => void;
+    currentTime: number;
+    duration: number;
+    setCurrentTime: (_time: number) => void;
+    loadAudio: (_url: string) => Promise<void>;
+    source: AudioBufferSourceNode | null;
+    gainNode: GainNode | null;
+    queue: number[];
+    currentSnapId: number | null;
+    currentSnap: Snap | null;
+    addToQueue: (_snapId: number) => void;
+    removeFromQueue: (_snapId: number) => void;
+    playNext: () => void;
+    playPrevious: () => void;
+    clearQueue: () => void;
+    playSnapById: (_snapId: number) => void;
+    loadSnapById: (_snapId: number) => Promise<void>;
+    currentIndex: number;
+}
+
+export const AudioContext = createContext<AudioContextType | null>(null);
+
+export const AudioProvider = ({ children }: { children: ReactNode }) => {
+    const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTimeState] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [_volume, setVolumeState] = useState(1);
+    const [source, setSource] = useState<AudioBufferSourceNode | null>(null);
+    const [gainNode, setGainNode] = useState<GainNode | null>(null);
+    const [queue, setQueue] = useState<number[]>([]);
+    const [currentSnapId, setCurrentSnapId] = useState<number | null>(null);
+    const [currentSnap, setCurrentSnap] = useState<Snap | null>(null);
+    const [currentIndex, setCurrentIndex] = useState(-1);
+
+    useEffect(() => {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const gain = ctx.createGain();
+        gain.connect(ctx.destination);
+        setAudioContext(ctx);
+        setGainNode(gain);
+        
+        return () => {
+            ctx.close();
+        };
+    }, []);
+    
+    const togglePlayPause = () => {
+        if (isPlaying) {
+            audioContext?.suspend();
+            setIsPlaying(false);
+        } else {
+            audioContext?.resume();
+            setIsPlaying(true);
+        }
+    }
+
+    const setVolume = (_volume: number) => {
+        setVolumeState(_volume);
+        if (gainNode) {
+            gainNode.gain.value = _volume;
+        }
+    }
+
+    const setCurrentTime = (_time: number) => {
+        setCurrentTimeState(_time);
+    }
+
+    const fetchSnap = async (snapId: number): Promise<Snap> => {
+        const response = await fetch(`${BASE_URL}/snap/${snapId}/info`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch snap ${snapId}`);
+        }
+        const result = await response.json();
+        return result.data;
+    };
+
+    const addToQueue = useCallback((_snapId: number) => {
+        setQueue(prev => [...prev, _snapId]);
+    }, []);
+
+    const playNext = useCallback(() => {
+        if (currentIndex < queue.length - 1) {
+            const nextIndex = currentIndex + 1;
+            const nextSnapId = queue[nextIndex];
+            setCurrentIndex(nextIndex);
+            setCurrentSnapId(nextSnapId);
+            
+        }
+    }, [currentIndex, queue]);
+
+    const loadAudio = useCallback(async (_url: string) => {
+        if (!audioContext || !gainNode) return;
+        
+        try {
+            if (source) {
+                source.stop();
+            }
+            
+            const response = await fetch(_url);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            
+            const newSource = audioContext.createBufferSource();
+            newSource.buffer = audioBuffer;
+            newSource.connect(gainNode);
+            
+            newSource.onended = () => {
+                setIsPlaying(false);
+                if (currentIndex < queue.length - 1) {
+                    playNext();
+                }
+            };
+            
+            newSource.start();
+            setSource(newSource);
+            setDuration(audioBuffer.duration);
+            setIsPlaying(true);
+        } catch (error) {
+            console.error('Error loading audio:', error);
+        }
+    }, [audioContext, gainNode, source, currentIndex, queue, playNext]);
+
+    const removeFromQueue = useCallback((_snapId: number) => {
+        setQueue(prev => prev.filter(id => id !== _snapId));
+        if (currentSnapId === _snapId) {
+            playNext();
+        }
+    }, [currentSnapId, playNext]);
+
+    const clearQueue = useCallback(() => {
+        setQueue([]);
+        setCurrentSnapId(null);
+        setCurrentSnap(null);
+        setCurrentIndex(-1);
+        source?.stop();
+        setSource(null);
+        setIsPlaying(false);
+    }, [source]);
+
+    const playPrevious = useCallback(() => {
+        if (currentIndex > 0) {
+            const prevIndex = currentIndex - 1;
+            const prevSnapId = queue[prevIndex];
+            setCurrentIndex(prevIndex);
+            setCurrentSnapId(prevSnapId);
+        }
+    }, [currentIndex, queue]);
+
+    const loadSnapById = useCallback(async (_snapId: number) => {
+        try {
+            const snap = await fetchSnap(_snapId);
+            setCurrentSnap(snap);
+            setCurrentSnapId(_snapId);
+            setDuration(snap.duration);
+            
+            await loadAudio(snap.streamUrl);
+        } catch (error) {
+            console.error('Error loading snap:', error);
+        }
+    }, [loadAudio]);
+
+    const playSnapById = useCallback(async (_snapId: number) => {
+        const index = queue.indexOf(_snapId);
+        if (index !== -1) {
+            setCurrentIndex(index);
+            await loadSnapById(_snapId);
+        } else {
+            addToQueue(_snapId);
+            setCurrentIndex(queue.length);
+            await loadSnapById(_snapId);
+        }
+    }, [queue, addToQueue, loadSnapById]);
+
+    return (
+        <AudioContext.Provider value={{
+            audioContext,
+            isPlaying,
+            togglePlayPause,
+            setVolume,
+            currentTime,
+            duration,
+            setCurrentTime,
+            loadAudio,
+            source,
+            gainNode,
+            queue,
+            currentSnapId,
+            currentSnap,
+            addToQueue,
+            removeFromQueue,
+            playNext,
+            playPrevious,
+            clearQueue,
+            playSnapById,
+            loadSnapById,
+            currentIndex
+        }}>
+            {children}
+        </AudioContext.Provider>
+    );
+}
