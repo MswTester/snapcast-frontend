@@ -9,10 +9,22 @@ import SnapItem from "../components/advanced/SnapItem";
 import ChannelRailItem, { type ChannelRailItemProps } from "../components/advanced/ChannelRailItem";
 import { type SnapItemProps } from "../components/advanced/SnapItem";
 import Text from "../components/primitives/Text";
+import { useAuth } from "../../hooks/useAuth";
+import styled from "@emotion/styled";
+import { applyTypography } from "../components/util";
+
+const SmallButton = styled.button<{ theme: Theme }>`
+    ${p => applyTypography(p.theme.typography.titleSmall)}
+    background-color: ${p => p.theme.colors.primary};
+    color: ${p => p.theme.colors.onPrimary};
+    border-radius: ${p => p.theme.dimensions.sm};
+    padding: ${p => p.theme.dimensions.sm} ${p => p.theme.dimensions.md};
+    border: none;
+`;
 
 const Home = () => {
     const theme = useTheme() as Theme;
-    const [profile, setProfile] = useState('/avatar.png');
+    const { user } = useAuth();
     const [recommendChannel, setRecommendChannel] = useState<ChannelRailItemProps[]>([
         {
             avatar: '/avatar.png',
@@ -125,15 +137,19 @@ const Home = () => {
                     width={'118px'} 
                     height={'22px'}
                 />
-                <HStack theme={theme} gap="lg">
+                <HStack theme={theme} gap="lg" items="center">
                     <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_search_ob_light" darkSrc="ic_search_ob_dark" size="24px" />
-                    <img 
-                        style={{ borderRadius: '50%' }}
-                        src={profile}
-                        alt="avatar" 
-                        width={'24px'} 
-                        height={'24px'}
-                    />
+                    {user ? (
+                        <img 
+                            style={{ borderRadius: '50%' }}
+                            src={user?.avatar}
+                            alt="avatar" 
+                            width={'24px'} 
+                            height={'24px'}
+                        />
+                    ) : (
+                        <SmallButton theme={theme} onClick={() => {}}>로그인</SmallButton>
+                    )}
                 </HStack>
             </HStack>
             <VStack theme={theme} w="100%" gap="lg" ph={20} flex={1} scrollable>
