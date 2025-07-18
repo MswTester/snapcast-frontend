@@ -71,7 +71,7 @@ const AudioBottomSheet = () => {
     
     const [contexts, setContexts] = useState<Context[]>([]);
     const [isLoadingQueue, setIsLoadingQueue] = useState(false);
-    const [fullSnapData, setFullSnapData] = useState<Snap | null>(null);
+    const [_fullSnapData, setFullSnapData] = useState<Snap | null>(null);
 
     // Calculate progress percentage
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -127,11 +127,11 @@ const AudioBottomSheet = () => {
         }
     }, [queue.length, autoAddToQueue, autoPlayEnabled]);
 
-    const handleSeek = useCallback((progressPercent: number) => {
+    const handleSeek = useCallback((_progressPercent: number) => {
         if (duration > 0) {
-            const _newTime = (progressPercent / 100) * duration;
             // This would need to be implemented in the audio context
-            // setCurrentTime(_newTime);
+            // const newTime = (progressPercent / 100) * duration;
+            // setCurrentTime(newTime);
         }
     }, [duration]);
 
@@ -202,15 +202,15 @@ const AudioBottomSheet = () => {
             )}
 
             <VStack theme={theme} p="xl" gap="xl">
-                <VStack theme={theme} gap="md" alignItems="center">
-                    <Text theme={theme} variant="h6" color="onSurface" textAlign="center">
+                <VStack theme={theme} gap="md">
+                    <Text theme={theme} color="onSurface">
                         {currentSnap.title}
                     </Text>
-                    <Text theme={theme} variant="body2" color="onSurfaceVariant" textAlign="center">
+                    <Text theme={theme} color="onSurfaceVariant">
                         {currentSnap.channel?.name} • {currentSnap.channel?.author?.name}
                     </Text>
                     {isLoadingQueue && (
-                        <Text theme={theme} variant="caption" color="primary" textAlign="center">
+                        <Text theme={theme} color="primary">
                             Adding songs to queue...
                         </Text>
                     )}
@@ -218,15 +218,15 @@ const AudioBottomSheet = () => {
                 
                 <ProgressBar progress={progress} onSeek={handleSeek} />
                 
-                <HStack theme={theme} gap="40px" justifyContent="center" alignItems="center">
-                    <Icon 
-                        isDarkTheme={theme.type === 'dark'} 
-                        lightSrc="ic_prev" 
-                        darkSrc="ic_prev" 
-                        size="28px"
-                        onClick={playPrevious}
-                        style={{ cursor: 'pointer' }}
-                    />
+                <HStack theme={theme} gap="40px" justifyCenter>
+                    <div onClick={playPrevious} style={{ cursor: 'pointer' }}>
+                        <Icon 
+                            isDarkTheme={theme.type === 'dark'} 
+                            lightSrc="ic_prev" 
+                            darkSrc="ic_prev" 
+                            size="28px"
+                        />
+                    </div>
                     
                     <Button 
                         theme={theme} 
@@ -245,30 +245,30 @@ const AudioBottomSheet = () => {
                         />
                     </Button>
                     
-                    <Icon 
-                        isDarkTheme={theme.type === 'dark'} 
-                        lightSrc="ic_next" 
-                        darkSrc="ic_next" 
-                        size="28px"
-                        onClick={playNext}
-                        style={{ cursor: 'pointer' }}
-                    />
+                    <div onClick={playNext} style={{ cursor: 'pointer' }}>
+                        <Icon 
+                            isDarkTheme={theme.type === 'dark'} 
+                            lightSrc="ic_next" 
+                            darkSrc="ic_next" 
+                            size="28px"
+                        />
+                    </div>
                 </HStack>
 
                 {/* Auto-play toggle */}
-                <HStack theme={theme} justifyContent="center" alignItems="center" gap="sm">
-                    <Text theme={theme} variant="caption" color="onSurfaceVariant">
+                <HStack theme={theme} justifyCenter gap="sm">
+                    <Text theme={theme} color="onSurfaceVariant">
                         Auto-play
                     </Text>
                     <Button
                         theme={theme}
-                        variant={autoPlayEnabled ? "filled" : "outline"}
+                        variant={autoPlayEnabled ? "primary" : "outline"}
                         color="primary"
                         onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         ph="sm"
                         pv="xs"
                     >
-                        <Text theme={theme} variant="caption" color={autoPlayEnabled ? "onPrimary" : "primary"}>
+                        <Text theme={theme} color={autoPlayEnabled ? "onPrimary" : "primary"}>
                             {autoPlayEnabled ? "ON" : "OFF"}
                         </Text>
                     </Button>
