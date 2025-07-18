@@ -36,27 +36,60 @@ const PlayButton = styled.button`
     }
 `;
 
+const ProgressBar = styled.div`
+  height: 2px;
+  width: 100%;
+  background-color: ${p => p.theme.colors.outline};
+  overflow: hidden;
+`;
+
+const Progress = styled.div<{ progress: number }>`
+  height: 100%;
+  width: ${p => p.progress}%;
+  background-color: ${p => p.theme.colors.primary};
+  transition: width 0.3s ease;
+`;
+
+const WrapButton = styled.button`
+    width: 100%;
+    padding: ${p => p.theme.dimensions.none};
+    background-color: ${p => p.theme.colors.surface};
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+`;
+
 interface TrackBarProps {
     title: string;
     author: string;
+    progress: number;
+    onClick: () => void;
     onPlay: () => void;
 }
 
-const TrackBar = ({ title, author, onPlay }: TrackBarProps) => {
+const TrackBar = ({ title, author, onClick, onPlay, progress }: TrackBarProps) => {
     const theme = useTheme() as Theme;
     
     return (
-        <VStack theme={theme}>
-            <HStack theme={theme} w="100%" justify="space-between" p="md">
-                <VStack theme={theme} gap={"xs"} flex={1}>
-                    <Title>{title}</Title>
-                    <Author>{author}</Author>
-                </VStack>
-                <PlayButton onClick={onPlay}>
-                    <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_play" darkSrc="ic_play" size="xxxl" />
-                </PlayButton>
-            </HStack>
-        </VStack>
+        <WrapButton onClick={onClick}>
+            <VStack theme={theme} w="100%">
+                <ProgressBar theme={theme}>
+                    <Progress progress={progress} theme={theme} />
+                </ProgressBar>
+                <HStack theme={theme} w="100%" justify="space-between" p="md">
+                    <VStack theme={theme} gap={"xs"} flex={1}>
+                        <Title>{title}</Title>
+                        <Author>{author}</Author>
+                    </VStack>
+                    <PlayButton onClick={onPlay}>
+                        <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_play" darkSrc="ic_play" size="xxxl" />
+                    </PlayButton>
+                </HStack>
+            </VStack>
+        </WrapButton>
     );
 }
 

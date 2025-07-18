@@ -11,6 +11,14 @@ export const ApplySpacingProps = (props: SpacingProps & ThemeIncludes) => {
   if (props.pr) styles.push(`padding-right: ${parseSize(props.pr, props.theme)}`);
   if (props.pb) styles.push(`padding-bottom: ${parseSize(props.pb, props.theme)}`);
   if (props.pl) styles.push(`padding-left: ${parseSize(props.pl, props.theme)}`);
+  if (props.ph) {
+    const size = parseSize(props.ph, props.theme);
+    styles.push(`padding-left: ${size}`, `padding-right: ${size}`);
+  }
+  if (props.pv) {
+    const size = parseSize(props.pv, props.theme);
+    styles.push(`padding-top: ${size}`, `padding-bottom: ${size}`);
+  }
   if (props.m) styles.push(`margin: ${parseSize(props.m, props.theme)}`);
   if (props.mt) styles.push(`margin-top: ${parseSize(props.mt, props.theme)}`);
   if (props.mr) styles.push(`margin-right: ${parseSize(props.mr, props.theme)}`);

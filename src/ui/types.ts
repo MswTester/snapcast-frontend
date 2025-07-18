@@ -6,6 +6,8 @@ export interface SpacingProps {
   pr?: Size;
   pb?: Size;
   pl?: Size;
+  ph?: Size;
+  pv?: Size;
 
   m?: Size;
   mt?: Size;
