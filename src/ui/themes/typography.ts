@@ -6,28 +6,28 @@ const fontFamily = '"Pretendard", -apple-system, BlinkMacSystemFont, system-ui, 
 export const fontFaces = css`
   @font-face {
     font-family: 'Pretendard';
-    src: url('../../../../assets/fonts/Pretendard-Medium.ttf') format('truetype');
+    src: url('../../assets/fonts/Pretendard-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
   }
   @font-face {
     font-family: 'Pretendard';
-    src: url('../../../../assets/fonts/Pretendard-SemiBold.ttf') format('truetype');
+    src: url('../../assets/fonts/Pretendard-SemiBold.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
     font-display: swap;
   }
   @font-face {
     font-family: 'Pretendard';
-    src: url('../../../../assets/fonts/Pretendard-Bold.ttf') format('truetype');
+    src: url('../../assets/fonts/Pretendard-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
   }
   @font-face {
     font-family: 'Pretendard';
-    src: url('../../../../assets/fonts/Pretendard-ExtraBold.ttf') format('truetype');
+    src: url('../../assets/fonts/Pretendard-ExtraBold.ttf') format('truetype');
     font-weight: 800;
     font-style: normal;
     font-display: swap;

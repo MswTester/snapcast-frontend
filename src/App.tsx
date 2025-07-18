@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
-import { lightTheme } from './themes';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
+import { lightTheme } from './ui/themes';
+import Home from './ui/pages/Home';
+import NotFound from './ui/pages/NotFound';
 
 export default function App() {
   return (
