@@ -58,7 +58,7 @@ const WrapButton = styled.button`
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: start;
     transition: background-color 0.2s ease;
 `;
 
@@ -74,22 +74,22 @@ const TrackBar = ({ title, author, onClick, onPlay, progress }: TrackBarProps) =
     const theme = useTheme() as Theme;
     
     return (
-        <WrapButton onClick={onClick}>
-            <VStack theme={theme} w="100%">
-                <ProgressBar theme={theme}>
-                    <Progress progress={progress} theme={theme} />
-                </ProgressBar>
-                <HStack theme={theme} w="100%" justify="space-between" p="md">
+        <VStack theme={theme} w="100%" bgColor="surface">
+            <ProgressBar theme={theme}>
+                <Progress progress={progress} theme={theme} />
+            </ProgressBar>
+            <HStack theme={theme} w="100%" justify="space-between" p="md">
+                <WrapButton onClick={onClick}>
                     <VStack theme={theme} gap={"xs"} flex={1}>
                         <Title>{title}</Title>
                         <Author>{author}</Author>
                     </VStack>
-                    <PlayButton onClick={onPlay}>
-                        <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_play" darkSrc="ic_play" size="xxxl" />
-                    </PlayButton>
-                </HStack>
-            </VStack>
-        </WrapButton>
+                </WrapButton>
+                <PlayButton onClick={onPlay}>
+                    <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_play" darkSrc="ic_play" size="xxxl" />
+                </PlayButton>
+            </HStack>
+        </VStack>
     );
 }
 
