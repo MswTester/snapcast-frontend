@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
-import { lightTheme } from './ui/themes';
+import { darkTheme, lightTheme } from './ui/themes';
 import Home from './ui/pages/Home';
 import Login from './ui/pages/Login';
 import Register from './ui/pages/Register';
@@ -20,7 +20,7 @@ export default function App() {
   }, []);
   
   return (once &&
-    <ThemeProvider theme={lightTheme}>
+    <ThemeProvider theme={darkTheme}>
       <AudioProvider>
         <AuthProvider>
           <Router>

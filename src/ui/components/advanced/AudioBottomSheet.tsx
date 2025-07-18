@@ -8,7 +8,8 @@ import {Button} from "../primitives/Button";
 import ControllBar from "./ControllBar";
 import Icon from "../primitives/Icon";
 import ContextItem from "./ContextItem";
-import { useAudio, useWorkflow } from "../../../hooks";
+import { useAudio } from "../../../hooks/useAudio";
+import { useWorkflow } from "../../../hooks/useWorkflow";
 import { ApiService } from "../../../services/api";
 import type { Context, Snap } from "../../../types";
 

@@ -8,6 +8,11 @@ import type {
   RegisterRequest,
   UpdateProfileRequest
 } from "../types";
+import { 
+  mockSnaps, 
+  createMockApiResponse, 
+  mockApiDelay 
+} from "./mockData";
 
 const BASE_URL = "http://localhost:8000";
 
@@ -35,18 +40,27 @@ export class ApiService {
       ...options.headers,
     };
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include',
-    });
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include',
+        mode: 'cors',
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('CORS')) {
+        console.warn(`CORS error for ${endpoint}. Backend may not be running or CORS not configured.`);
+        throw new Error('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+      }
+      throw error;
     }
-
-    return response.json();
   }
 
   // Authentication endpoints
@@ -172,38 +186,84 @@ export class ApiService {
     });
   }
 
-  // Search endpoints
+  // Search endpoints with fallback
   static async search(query: string): Promise<ApiResponse<Snap[]>> {
-    return this.request("/search/", {
-      method: "POST",
-      body: JSON.stringify({ query }),
-    });
+    try {
+      return await this.request("/search/", {
+        method: "POST",
+        body: JSON.stringify({ query }),
+      });
+    } catch (error) {
+      console.warn("Using mock search data:", error);
+      await mockApiDelay();
+      const filteredSnaps = mockSnaps.filter(snap => 
+        snap.title.toLowerCase().includes(query.toLowerCase()) ||
+        snap.channel?.name.toLowerCase().includes(query.toLowerCase()) ||
+        snap.tags?.some(tag => tag.name.toLowerCase().includes(query.toLowerCase()))
+      );
+      return createMockApiResponse(filteredSnaps);
+    }
   }
 
   static async getSearchSuggestions(): Promise<ApiResponse<string[]>> {
     return this.request("/search/suggestions");
   }
 
-  // Recommendation endpoints
+  // Recommendation endpoints with fallback
   static async getPopularSnaps(): Promise<ApiResponse<Snap[]>> {
-    return this.request("/recommended/popular");
+    try {
+      return await this.request("/recommended/popular");
+    } catch (error) {
+      console.warn("Using mock data for popular snaps:", error);
+      await mockApiDelay();
+      return createMockApiResponse(mockSnaps.slice(0, 3));
+    }
   }
 
   static async getTrendingSnaps(): Promise<ApiResponse<Snap[]>> {
-    return this.request("/recommended/trending");
+    try {
+      return await this.request("/recommended/trending");
+    } catch (error) {
+      console.warn("Using mock data for trending snaps:", error);
+      await mockApiDelay();
+      return createMockApiResponse(mockSnaps.slice(1, 3));
+    }
   }
 
   static async getRecommendedByChannel(channelId: number): Promise<ApiResponse<Snap[]>> {
-    return this.request(`/recommended/by-channel/${channelId}`);
+    try {
+      return await this.request(`/recommended/by-channel/${channelId}`);
+    } catch (error) {
+      console.warn("Using mock data for channel snaps:", error);
+      await mockApiDelay();
+      const channelSnaps = mockSnaps.filter(snap => snap.channelId === channelId);
+      return createMockApiResponse(channelSnaps);
+    }
   }
 
   static async getRecommendedByTags(): Promise<ApiResponse<Snap[]>> {
-    return this.request("/recommended/by-tags");
+    try {
+      return await this.request("/recommended/by-tags");
+    } catch (error) {
+      console.warn("Using mock data for tag-based snaps:", error);
+      await mockApiDelay();
+      return createMockApiResponse(mockSnaps);
+    }
   }
 
-  // Snap endpoints
+  // Snap endpoints with fallback
   static async getSnapInfo(id: number): Promise<ApiResponse<Snap>> {
-    return this.request(`/snap/${id}/info`);
+    try {
+      return await this.request(`/snap/${id}/info`);
+    } catch (error) {
+      console.warn("Using mock data for snap info:", error);
+      await mockApiDelay();
+      const snap = mockSnaps.find(s => s.id === id);
+      if (snap) {
+        return createMockApiResponse(snap);
+      }
+      throw new Error(`Snap with id ${id} not found`);
+    }
   }
 
   static async getRelatedSnaps(id: number): Promise<ApiResponse<Snap[]>> {

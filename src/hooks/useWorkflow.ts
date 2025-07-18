@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import type { Channel, Snap } from "../types";
 
@@ -30,6 +31,7 @@ export interface WorkflowState {
 
 export const useWorkflow = () => {
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   
   const [state, setState] = useState<WorkflowState>({
     currentStep: "home",
@@ -51,26 +53,33 @@ export const useWorkflow = () => {
         ? [...prev.navigationStack, step]
         : prev.navigationStack,
     }));
-  }, []);
+    
+    // Navigate using React Router
+    const routeMap: Record<WorkflowStep, string> = {
+      home: "/",
+      login: "/login",
+      register: "/register",
+      search: "/search",
+      channel: "/channel",
+      name: "/register",
+      gender: "/register",
+      avatar: "/register",
+      channelCreationName: "/create-channel",
+      channelCreationImage: "/create-channel",
+      channelCreationConcept: "/create-channel",
+      snapCreationStory: "/create-snap",
+      snapCreationQuestions: "/create-snap",
+    };
+    
+    const route = routeMap[step];
+    if (route) {
+      navigate(route);
+    }
+  }, [navigate]);
 
   const goBack = useCallback(() => {
-    setState(prev => {
-      if (prev.navigationStack.length <= 1) {
-        return prev; // Can't go back further
-      }
-      
-      const newStack = [...prev.navigationStack];
-      newStack.pop(); // Remove current step
-      const previousStep = newStack[newStack.length - 1];
-      
-      return {
-        ...prev,
-        previousStep: prev.currentStep,
-        currentStep: previousStep,
-        navigationStack: newStack,
-      };
-    });
-  }, []);
+    navigate(-1); // Use React Router's built-in back navigation
+  }, [navigate]);
 
   const navigateToHome = useCallback(() => {
     setState(prev => ({
@@ -79,7 +88,8 @@ export const useWorkflow = () => {
       currentStep: "home",
       navigationStack: ["home"],
     }));
-  }, []);
+    navigate("/");
+  }, [navigate]);
 
   const handleProfileClick = useCallback(() => {
     if (!isAuthenticated) {
@@ -211,12 +221,8 @@ export const useWorkflow = () => {
   }, []);
 
   const toggleSearchModal = useCallback(() => {
-    if (state.currentStep === "search") {
-      goBack();
-    } else {
-      navigateTo("search");
-    }
-  }, [state.currentStep, goBack, navigateTo]);
+    navigateTo("search");
+  }, [navigateTo]);
 
   return {
     ...state,
