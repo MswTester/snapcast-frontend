@@ -1,20 +1,22 @@
-import type { Dimensions } from "../../themes/types";
+import type { Size } from "../../types";
 import { parseSize } from "../../utils";
 
 interface IconProps {
-    isDarkTheme?: boolean;
-    src: string;
-    size?: keyof Dimensions;
+    isDarkTheme: boolean;
+    lightSrc: string;
+    darkSrc: string;
+    size: Size;
 }
 
 const Icon = ({
     isDarkTheme,
-    src,
-    size = 'md'
+    lightSrc,
+    darkSrc,
+    size,
 }: IconProps) => {
     return (
         <img 
-            src={`${src.replace('.svg', '')}_${isDarkTheme ? 'dark' : 'light'}.svg`} 
+            src={`/icons/${isDarkTheme ? darkSrc : lightSrc}.svg`}
             alt="icon" 
             width={parseSize(size)} 
             height={parseSize(size)} 

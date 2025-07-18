@@ -2,6 +2,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { lightTheme } from './ui/themes';
 import Home from './ui/pages/Home';
+import Login from './ui/pages/Login';
+import Register from './ui/pages/Register';
+import Search from './ui/pages/Search';
+import Channel from './ui/pages/Channel';
+import CreateChannel from './ui/pages/CreateChannel';
+import CreateSnap from './ui/pages/CreateSnap';
 import NotFound from './ui/pages/NotFound';
 
 export default function App() {
@@ -10,6 +16,12 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/channel" element={<Channel />} />
+          <Route path="/create-channel" element={<CreateChannel />} />
+          <Route path="/create-snap" element={<CreateSnap />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

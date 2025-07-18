@@ -6,11 +6,15 @@ import type { ThemeIncludes } from "../../../themes/types";
 
 interface HStackProps extends SpacingProps, SizeProps, LayoutProps, PositionProps, StyleProps, TransformProps, AnimationProps, ThemeIncludes {
   children?: React.ReactNode;
+  justify?: string;
+  items?: string;
 }
 
 const StyledHStack = styled.div<HStackProps>`
   display: flex;
   flex-direction: row;
+  justify-content: ${props => props.justify || 'flex-start'} !important;
+  align-items: ${props => props.items || 'flex-start'} !important;
   
   ${ApplyPositionProps}
   ${ApplyLayoutProps}
