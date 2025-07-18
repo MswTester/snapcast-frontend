@@ -1,3 +1,5 @@
+export type ThemeIncludes = { theme: Theme };
+
 export interface Theme {
     colors: Colors;
     typography: Typography;
