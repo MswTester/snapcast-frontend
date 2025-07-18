@@ -6,10 +6,115 @@ import { HStack } from "../components/primitives/layout/HStack";
 import Icon from "../components/primitives/Icon";
 import { useState } from "react";
 import SnapItem from "../components/advanced/SnapItem";
+import ChannelRailItem, { type ChannelRailItemProps } from "../components/advanced/ChannelRailItem";
+import { type SnapItemProps } from "../components/advanced/SnapItem";
+import Text from "../components/primitives/Text";
 
 const Home = () => {
     const theme = useTheme() as Theme;
-    const [avatar, setAvatar] = useState('/avatar.png');
+    const [profile, setProfile] = useState('/avatar.png');
+    const [recommendChannel, setRecommendChannel] = useState<ChannelRailItemProps[]>([
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+        {
+            avatar: '/avatar.png',
+            name: '현호세상'
+        },
+    ]);
+    const [hotSnap, setHotSnap] = useState<SnapItemProps[]>([
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+    ]);
+    const [trendingSnap, setTrendingSnap] = useState<SnapItemProps[]>([
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+        {
+            title: '사랑을 위해 17대 1을 한다.',
+            author: '현호세상 | 김현호',
+            tags: [
+                { focused: true, content: "연애" },
+                { focused: false, content: "현피" },
+            ]
+        },
+    ]);
     
     return (
         <VStack theme={theme} w="100%" h="100%" bgColor="background">
@@ -24,22 +129,50 @@ const Home = () => {
                     <Icon isDarkTheme={theme.type === 'dark'} lightSrc="ic_search_ob_light" darkSrc="ic_search_ob_dark" size="24px" />
                     <img 
                         style={{ borderRadius: '50%' }}
-                        src={avatar}
+                        src={profile}
                         alt="avatar" 
                         width={'24px'} 
                         height={'24px'}
                     />
                 </HStack>
             </HStack>
-            <VStack theme={theme} w="100%" h="100%" gap="lg" ph={20}>
-                <SnapItem
-                    title="사랑을 위해 17대 1을 한다."
-                    author="현호세상 | 김현호"
-                    tags={[
-                        { focused: true, content: "연애" },
-                        { focused: false, content: "현피" },
-                    ]}
-                />
+            <VStack theme={theme} w="100%" gap="lg" ph={20} flex={1} scrollable>
+                <VStack theme={theme} w="100%" gap="lg" pv="lg">
+                    <Text theme={theme} variant="titleLarge" color="onBackground">HOT한 스냅</Text>
+                    {hotSnap.map((snap, index) => (
+                        <SnapItem key={index} {...snap} />
+                    ))}
+                </VStack>
+                <VStack theme={theme} w="100%" gap="lg" pv="lg">
+                    <Text theme={theme} variant="titleLarge" color="onBackground">추천 채널</Text>
+                    <div style={{ 
+                        width: '100%',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        WebkitOverflowScrolling: 'touch',
+                        paddingBottom: '8px', // Add some space for scrollbar if it appears
+                    }}>
+                        <HStack 
+                            theme={theme} 
+                            gap="xl" 
+                            style={{
+                                width: 'max-content',
+                                paddingLeft: '20px',
+                                paddingRight: '20px',
+                            }}
+                        >
+                            {recommendChannel.map((channel, index) => (
+                                <ChannelRailItem key={index} {...channel} />
+                            ))}
+                        </HStack>
+                    </div>
+                </VStack>
+                <VStack theme={theme} w="100%" gap="lg" pv="lg">
+                    <Text theme={theme} variant="titleLarge" color="onBackground">현재 유행하는 스냅</Text>
+                    {trendingSnap.map((snap, index) => (
+                        <SnapItem key={index} {...snap} />
+                    ))}
+                </VStack>
             </VStack>
             <TrackBar title="사랑을 위해 17대 1을 한다" author="현호세상" progress={50} onClick={() => {}} onPlay={() => {}} />
         </VStack>

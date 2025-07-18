@@ -8,13 +8,14 @@ interface HStackProps extends EventProps, SpacingProps, SizeProps, LayoutProps, 
   children?: React.ReactNode;
   justify?: string;
   items?: string;
+  style?: React.CSSProperties;
 }
 
 const StyledHStack = styled.div<HStackProps>`
   display: flex;
   flex-direction: row;
   justify-content: ${props => props.justify || 'flex-start'} !important;
-  align-items: ${props => props.items || 'flex-start'} !important;
+  align-items: ${props => props.items || 'stretch'} !important;
   
   ${ApplyPositionProps}
   ${ApplyLayoutProps}
@@ -23,6 +24,7 @@ const StyledHStack = styled.div<HStackProps>`
   ${ApplyTransformProps}
   ${ApplyAnimationProps}
   ${ApplyStyleProps}
+  ${props => props.style ? Object.entries(props.style).map(([key, value]) => `${key}: ${value};`).join('\n') : ''}
 `;
 
 export const HStack: React.FC<HStackProps> = ({ children, ...props }) => {

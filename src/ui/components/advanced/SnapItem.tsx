@@ -28,7 +28,7 @@ interface ChipProps {
     content: string;
 }
 
-interface SnapItemProps {
+export interface SnapItemProps {
     title: string;
     author: string;
     tags: ChipProps[];
