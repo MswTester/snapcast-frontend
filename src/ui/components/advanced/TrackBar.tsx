@@ -1,27 +1,36 @@
 import styled from "@emotion/styled";
+import { useTheme } from "@emotion/react";
+import { HStack } from "../primitives/layout/HStack";
+import { VStack } from "../primitives/layout/VStack";
+import type { Theme } from "../../themes/types";
 import { applyTypography } from "../util";
 
 const Title = styled.div`
-    ${p => applyTypography(p.theme.typography.titleMedium)};
+    ${p => applyTypography(p.theme.typography.titleMedium)}
     color: ${p => p.theme.colors.onBackground};
 `;
 
 const Author = styled.div`
-    ${p => applyTypography(p.theme.typography.bodySmall)};
+    ${p => applyTypography(p.theme.typography.bodySmall)}
     color: ${p => p.theme.colors.onSurfaceVariant};
 `;
 
-interface ITrackBar {
+interface TrackBarProps {
     title: string;
-    creater: string;
-    onStop: () => void;
+    author: string;
+    onPlay: () => void;
 }
 
-const TrackBar = ({ title }: ITrackBar) => {
+const TrackBar = ({ title, author, onPlay }: TrackBarProps) => {
+    const theme = useTheme() as Theme;
+    
     return (
-        <>
-            <Title>{title}</Title>
-        </>
+        <HStack theme={theme}>
+            <VStack theme={theme}>
+                <Title>{title}</Title>
+                <Author>{author}</Author>
+            </VStack>
+        </HStack>
     );
 }
 
