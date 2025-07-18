@@ -5,6 +5,7 @@ export interface EventProps {
     onTouchStart?: (e?: any) => void;
     onTouchMove?: (e?: any) => void;
     onTouchEnd?: (e?: any) => void;
+    onTouchCancel?: (e?: any) => void;
     onMouseEnter?: (e?: any) => void;
     onMouseLeave?: (e?: any) => void;
 }

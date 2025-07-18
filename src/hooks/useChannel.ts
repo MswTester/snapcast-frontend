@@ -68,11 +68,11 @@ export const useChannel = (channelId?: number) => {
     }
   }, []);
 
-  const followChannel = useCallback(async (id: number, userId: number): Promise<boolean> => {
+  const followChannel = useCallback(async (id: number, _userId: number): Promise<boolean> => {
     try {
       // Using generic API to manage user-channel relationship
       await ApiService.createModel("user_channel_follow", {
-        userId,
+        userId: _userId,
         channelId: id
       });
       setIsFollowing(true);
@@ -83,7 +83,7 @@ export const useChannel = (channelId?: number) => {
     }
   }, []);
 
-  const unfollowChannel = useCallback(async (id: number, userId: number): Promise<boolean> => {
+  const unfollowChannel = useCallback(async (id: number, _userId: number): Promise<boolean> => {
     try {
       // Using generic API to remove user-channel relationship
       await ApiService.deleteModel("user_channel_follow", id);
@@ -101,10 +101,10 @@ export const useChannel = (channelId?: number) => {
     });
   }, [snaps]);
 
-  const checkFollowStatus = useCallback(async (channelId: number, userId: number) => {
+  const checkFollowStatus = useCallback(async (channelId: number, _userId: number) => {
     try {
       // Check if user follows this channel
-      const userResponse = await ApiService.getModelById<User>("user", userId);
+      const userResponse = await ApiService.getModelById<User>("user", _userId);
       const following = userResponse.data.followings?.some(ch => ch.id === channelId);
       setIsFollowing(!!following);
     } catch (err) {

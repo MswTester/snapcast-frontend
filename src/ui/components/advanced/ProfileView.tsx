@@ -7,13 +7,7 @@ import Avatar from "../primitives/Avatar";
 import Text from "../primitives/Text";
 import { Button } from "../primitives/Button";
 import ChannelItem from "./ChannelItem";
-
-const ControllBar = () => {
-    const theme = useTheme() as Theme;
-    return <VStack theme={theme} p="lg">
-        <VStack theme={theme} w="48px" h="4px" r="50%" bgColor="onSurface" />
-    </VStack>
-}
+import ControllBar from "./ControllBar";
 
 interface ProfileViewProps {
     onClickChannel: (channelId: number) => void;

@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { ApiService } from "../services/api";
-import type { Snap } from "../types";
 
 export interface SnapCreationData {
   story: string;

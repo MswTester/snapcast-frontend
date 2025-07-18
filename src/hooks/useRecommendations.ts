@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { ApiService } from "../services/api";
-import type { Snap, Channel } from "../types";
+import type { Snap } from "../types";
 
 export const useRecommendations = () => {
   const [popular, setPopular] = useState<Snap[]>([]);

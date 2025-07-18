@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 import type { Snap } from "../types";
 import { ApiService } from "../services/api";
 
-const BASE_URL = "http://localhost:8000";
-
 export interface AudioContextType {
     audioContext: AudioContext | null;
     isPlaying: boolean;

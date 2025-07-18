@@ -2,10 +2,7 @@ import type {
   ApiResponse, 
   Snap, 
   Channel, 
-  Plan, 
-  Tag, 
-  User,
-  SearchHistory 
+  Tag
 } from "../types";
 
 const BASE_URL = "http://localhost:8000";
@@ -191,7 +188,7 @@ export class ApiService {
 
   // Model-specific shortcuts
   static async getChannels(): Promise<ApiResponse<Channel[]>> {
-    return this.getModel<Channel[]>("channel");
+    return this.getModel<Channel>("channel") as Promise<ApiResponse<Channel[]>>;
   }
 
   static async getChannel(id: number): Promise<ApiResponse<Channel>> {
@@ -211,7 +208,7 @@ export class ApiService {
   }
 
   static async getSnaps(): Promise<ApiResponse<Snap[]>> {
-    return this.getModel<Snap[]>("snap");
+    return this.getModel<Snap>("snap") as Promise<ApiResponse<Snap[]>>;
   }
 
   static async getSnap(id: number): Promise<ApiResponse<Snap>> {
@@ -231,7 +228,7 @@ export class ApiService {
   }
 
   static async getTags(): Promise<ApiResponse<Tag[]>> {
-    return this.getModel<Tag[]>("tag");
+    return this.getModel<Tag>("tag") as Promise<ApiResponse<Tag[]>>;
   }
 
   static async createTag(data: Partial<Tag>): Promise<ApiResponse<Tag>> {

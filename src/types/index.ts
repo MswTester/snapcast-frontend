@@ -118,6 +118,7 @@ export interface RegisterRequest {
   password: string;
   name: string;
   gender: Gender;
+  avatar: string;
 }
 
 export interface SubscribeRequest {
